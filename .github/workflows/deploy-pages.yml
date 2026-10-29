@@ -23,8 +23,7 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        # Removemos a versao fixa '9' para ele ler automaticamente 'pnpm@11.25.0' do seu package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
