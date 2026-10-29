@@ -4,6 +4,7 @@
 - [x] **Banco de 100 questões JSON demonstrativas** — Criado banco local em arquivo JSON com 100 questões AWS originais e demonstrativas, acompanhado de aviso claro de que não são questões oficiais da AWS.
 - [x] **Tela inicial da prova** — Implementada apresentação da prova e ação para iniciar uma tentativa.
 - [x] **Montagem aleatória da prova** — Cada tentativa seleciona e embaralha 70 questões a partir das 100 disponíveis.
+- [x] **Embaralhamento das alternativas** — Em cada tentativa, as quatro alternativas de cada questão são embaralhadas e o gabarito é remapeado para continuar apontando para a resposta correta.
 - [x] **Cronômetro e encerramento automático** — Implementada contagem regressiva de 90 minutos e finalização automática quando o tempo acaba.
 - [x] **Respostas e navegação** — Implementada apresentação de uma questão por vez com alternativas, navegação entre questões e registro das respostas selecionadas.
 - [x] **Cálculo do resultado** — Implementado cálculo da percentagem de respostas corretas no final da tentativa.

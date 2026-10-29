@@ -18,11 +18,31 @@ export function shuffleQuestions<T>(items: T[]): T[] {
   return shuffled;
 }
 
-export function createExam<T>(bank: T[], count: number): T[] {
+export function createExam(bank: Question[], count: number): Question[] {
   if (bank.length < count) {
     throw new Error(`O banco precisa ter pelo menos ${count} questões.`);
   }
-  return shuffleQuestions(bank).slice(0, count);
+  return shuffleQuestions(bank).slice(0, count).map((question) => {
+    if (
+      !Number.isInteger(question.answerIndex) ||
+      question.answerIndex < 0 ||
+      question.answerIndex >= question.options.length
+    ) {
+      throw new Error(`A questão ${question.id} tem um índice de gabarito inválido.`);
+    }
+
+    const shuffledOptions = shuffleQuestions(
+      question.options.map((text, originalIndex) => ({ text, originalIndex })),
+    );
+
+    return {
+      ...question,
+      options: shuffledOptions.map((option) => option.text),
+      answerIndex: shuffledOptions.findIndex(
+        (option) => option.originalIndex === question.answerIndex,
+      ),
+    };
+  });
 }
 
 export function calculateScore(questions: Question[], answers: Answers) {
