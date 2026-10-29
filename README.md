@@ -5,7 +5,6 @@ Um simulador demonstrativo de fundamentos AWS, feito com Next.js e TypeScript. O
 ## O que já funciona
 
 - Embaralha o banco e seleciona 70 perguntas em cada tentativa.
-- Embaralha também as quatro alternativas de cada questão, remapeando o gabarito para que a resposta correta continue correta mesmo quando muda de letra.
 - Executa a prova com contagem regressiva de 90 minutos e encerramento automático.
 - Permite responder e navegar pelas questões.
 - Calcula a porcentagem, considera 75% ou mais como aprovação e mostra a revisão com gabarito e explicações.
