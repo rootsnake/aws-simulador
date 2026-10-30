@@ -1,3 +1,6 @@
+import { CONFIG } from './config.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 export type Question = {
   id: string;
   category: string;
@@ -8,6 +11,32 @@ export type Question = {
 };
 
 export type Answers = Record<string, number>;
+
+// Inicializa o cliente do Supabase com as credenciais públicas do config.ts
+const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+/**
+ * Busca todas as questões hospedadas na Edge Function do Supabase
+ */
+export async function fetchQuestionsFromSupabase(): Promise<Question[]> {
+  try {
+    // Chama a Edge Function 'questions'
+    const { data, error } = await supabase.functions.invoke('questions');
+
+    if (error) {
+      throw error;
+    }
+
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data as Question[];
+    }
+
+    throw new Error('A resposta da Edge Function não veio no formato esperado.');
+  } catch (err) {
+    console.error('Erro ao carregar questões do Supabase:', err);
+    return [];
+  }
+}
 
 export function shuffleQuestions<T>(items: T[]): T[] {
   const shuffled = [...items];
