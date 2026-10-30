@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import questionData from "@/data/aws-questions.json";
 import {
   calculateScore,
   createExam,
   formatTime,
+  fetchQuestionsFromSupabase,
   type Answers,
   type Question,
 } from "@/lib/exam";
 
-const QUESTION_BANK = questionData as Question[];
 const EXAM_SIZE = 70;
 const EXAM_SECONDS = 90 * 60;
 const LETTERS = ["A", "B", "C", "D"];
@@ -36,12 +35,29 @@ function formatDuration(seconds: number) {
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("intro");
+  const [questionBank, setQuestionBank] = useState<Question[]>([]);
+  const [isLoadingBank, setIsLoadingBank] = useState(true);
   const [examQuestions, setExamQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(EXAM_SECONDS);
   const [attemptNumber, setAttemptNumber] = useState(0);
   const timerIdRef = useRef<number | null>(null);
+
+  // Busca o banco de questões da Edge Function do Supabase ao carregar a página
+  useEffect(() => {
+    async function loadBank() {
+      try {
+        const questions = await fetchQuestionsFromSupabase();
+        setQuestionBank(questions);
+      } catch (err) {
+        console.error("Erro ao carregar banco de questões da nuvem:", err);
+      } finally {
+        setIsLoadingBank(false);
+      }
+    }
+    loadBank();
+  }, []);
 
   useEffect(() => {
     if (screen !== "exam") return;
@@ -72,12 +88,20 @@ export default function Home() {
   );
 
   function startExam() {
-    setExamQuestions(createExam(QUESTION_BANK, EXAM_SIZE));
-    setAnswers({});
-    setCurrentIndex(0);
-    setRemainingSeconds(EXAM_SECONDS);
-    setAttemptNumber((attempt) => attempt + 1);
-    setScreen("exam");
+    if (questionBank.length === 0) {
+      alert("O banco de questões ainda está vazio ou carregando. Tente novamente em instantes.");
+      return;
+    }
+    try {
+      setExamQuestions(createExam(questionBank, EXAM_SIZE));
+      setAnswers({});
+      setCurrentIndex(0);
+      setRemainingSeconds(EXAM_SECONDS);
+      setAttemptNumber((attempt) => attempt + 1);
+      setScreen("exam");
+    } catch (err: any) {
+      alert(err.message || "Erro ao gerar o simulado.");
+    }
   }
 
   function chooseAnswer(optionIndex: number) {
@@ -98,13 +122,17 @@ export default function Home() {
             <p className="eyebrow"><span className="pulse-dot" /> LABORATÓRIO DE PREPARAÇÃO</p>
             <h1>Cloud se aprende.<br /><span>Conhecimento se prova.</span></h1>
             <p className="intro-description">
-              Um simulado prático para revisar fundamentos AWS, treinar sob pressão de tempo e descobrir onde focar os próximos estudos.
+              Um simulado prático conectado à nuvem para revisar fundamentos AWS, treinar sob pressão de tempo e descobrir onde focar os próximos estudos.
             </p>
             <div className="intro-actions">
-              <button className="button button-primary button-large" onClick={startExam}>
-                Iniciar simulado <span aria-hidden="true">↗</span>
+              <button 
+                className="button button-primary button-large" 
+                onClick={startExam}
+                disabled={isLoadingBank}
+              >
+                {isLoadingBank ? "Conectando à nuvem..." : "Iniciar simulado"} <span aria-hidden="true">↗</span>
               </button>
-              <span className="small-note">Sem cadastro. Seu ritmo, sua revisão.</span>
+              <span className="small-note">Sem cadastro. Dados dinâmicos via Supabase.</span>
             </div>
             <div className="trust-note">
               <span className="info-icon" aria-hidden="true">i</span>
@@ -112,7 +140,7 @@ export default function Home() {
             </div>
           </div>
           <aside className="exam-card" aria-label="Formato do simulado">
-            <div className="card-topline"><span>FORMATO DA PROVA</span><span className="live-pill">PRONTO</span></div>
+            <div className="card-topline"><span>FORMATO DA PROVA</span><span className="live-pill">{isLoadingBank ? "CARREGANDO" : "PRONTO"}</span></div>
             <div className="card-emblem" aria-hidden="true">
               <div className="orbit orbit-one" /><div className="orbit orbit-two" />
               <BrandMark />
@@ -120,8 +148,8 @@ export default function Home() {
             </div>
             <div className="card-title-row"><div><p className="card-kicker">AWS EXAM LAB</p><h2>Fundamentos<br />de cloud</h2></div><span className="card-number">01</span></div>
             <div className="stat-list">
-              <StatRow index="01" label="Banco de questões" value="100" detail="perguntas demonstrativas" />
-              <StatRow index="02" label="Por tentativa" value="70" detail="selecionadas aleatoriamente" />
+              <StatRow index="01" label="Banco de questões" value={isLoadingBank ? "..." : String(questionBank.length)} detail="perguntas na nuvem" />
+              <StatRow index="02" label="Por tentativa" value={String(EXAM_SIZE)} detail="selecionadas aleatoriamente" />
               <StatRow index="03" label="Tempo de prova" value="90 min" detail="contagem regressiva" />
             </div>
             <div className="pass-mark"><span>NOTA DE APROVAÇÃO</span><strong>75%</strong><span className="pass-bar"><i /></span></div>
@@ -162,7 +190,7 @@ export default function Home() {
               </div>
             </section>
           </div>
-          <p className="fine-print">Resultado de estudo calculado localmente no navegador. Este simulado não é oficial e não garante aprovação em certificações.</p>
+          <p className="fine-print">Resultado de estudo calculado no navegador via Supabase. Este simulado não é oficial e não garante aprovação em certificações.</p>
         </section>
         <Footer />
       </main>
@@ -241,33 +269,3 @@ export default function Home() {
               })}
             </div>
             <div className="question-navigation"><button className="button button-secondary" onClick={() => moveTo(currentIndex - 1)} disabled={currentIndex === 0}><span aria-hidden="true">←</span> Anterior</button><span>{currentIndex + 1} <i>/</i> {EXAM_SIZE}</span>{currentIndex < EXAM_SIZE - 1 ? <button className="button button-primary" onClick={() => moveTo(currentIndex + 1)}>Próxima <span aria-hidden="true">→</span></button> : <button className="button button-primary" onClick={() => setScreen("result")}>Finalizar prova <span aria-hidden="true">✓</span></button>}</div>
-          </section>
-          <aside className="question-sidebar">
-            <div className="sidebar-heading"><div><span>MAPA DA PROVA</span><strong>{answeredCount}<small> / {EXAM_SIZE}</small></strong></div><span className="sidebar-badge">70</span></div>
-            <p className="map-legend"><span className="legend-dot legend-answered" /> Respondida <span className="legend-dot" /> Em branco</p>
-            <div className="question-map" aria-label="Navegar pelas questões">
-              {examQuestions.map((question, index) => <button key={question.id} type="button" aria-label={`Ir para questão ${index + 1}${answers[question.id] !== undefined ? ", respondida" : ", em branco"}`} aria-current={index === currentIndex ? "step" : undefined} className={`map-number ${answers[question.id] !== undefined ? "map-answered" : ""} ${index === currentIndex ? "map-current" : ""}`} onClick={() => moveTo(index)}>{index + 1}</button>)}
-            </div>
-            <div className="sidebar-bottom"><p><strong>{EXAM_SIZE - answeredCount}</strong> questões aguardam sua resposta.</p><button className="finish-button" onClick={() => setScreen("result")}>Finalizar agora <span aria-hidden="true">↗</span></button></div>
-          </aside>
-        </div>
-        <p className="exam-disclaimer">Simulado demonstrativo. Questões originais, não oficiais da AWS.</p>
-      </section>
-    </main>
-  );
-}
-
-function Header({ compact = false }: { compact?: boolean }) {
-  return <header className={`site-header ${compact ? "header-compact" : ""}`}>
-    <a className="brand-lockup" href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/`} aria-label="AWS Exam Lab, início"><BrandMark /><span><strong>AWS EXAM <i>LAB</i></strong><small>SIMULADOR DE ESTUDOS</small></span></a>
-    <div className="header-right"><span className="header-tag"><span /> FUNDAMENTOS AWS</span><span className="header-separator" /><span className="header-version">V.01</span></div>
-  </header>;
-}
-
-function StatRow({ index, label, value, detail }: { index: string; label: string; value: string; detail: string }) {
-  return <div className="stat-row"><span className="stat-index">{index}</span><div className="stat-copy"><span>{label}</span><small>{detail}</small></div><strong>{value}</strong></div>;
-}
-
-function Footer() {
-  return <footer className="site-footer"><span>© AWS EXAM LAB <i>·</i> PROJETO DE ESTUDO</span><span>APRENDA COM INTENÇÃO<span className="footer-spark"> ✳</span></span></footer>;
-}
