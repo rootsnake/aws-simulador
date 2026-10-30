@@ -8,7 +8,7 @@ import {
   fetchQuestionsFromSupabase,
   type Answers,
   type Question,
-} from "@/lib/exam";
+} from "../lib/exam";
 
 const EXAM_SIZE = 70;
 const EXAM_SECONDS = 90 * 60;
@@ -30,7 +30,7 @@ function BrandMark() {
 function formatDuration(seconds: number) {
   const elapsed = EXAM_SECONDS - seconds;
   const minutes = Math.floor(elapsed / 60);
-  return ${minutes} min;
+  return \\ min\;
 }
 
 export default function Home() {
@@ -160,7 +160,7 @@ export default function Home() {
   }
 
   if (screen === "result" || (screen === "exam" && remainingSeconds === 0)) {
-    const scoreStyle = { "--score": ${score.percentage}% } as CSSProperties;
+    const scoreStyle = { "--score": \\%\ } as CSSProperties;
     return (
       <main className="site-shell results-shell">
         <Header />
@@ -253,7 +253,7 @@ export default function Home() {
           <div><p className="eyebrow"><span className="pulse-dot" /> SIMULADO EM ANDAMENTO</p><h1>Fundamentos de cloud</h1></div>
           <div className={	imer-card } aria-live="polite"><span className="timer-icon" aria-hidden="true">◷</span><div><span>TEMPO RESTANTE</span><strong>{formatTime(remainingSeconds)}</strong></div></div>
         </div>
-        <div className="exam-progress"><div className="progress-label"><span>PROGRESSO</span><strong>{answeredCount} <small>de {EXAM_SIZE} respondidas</small></strong></div><div className="progress-track"><span style={{ width: ${progress}% }} /></div></div>
+        <div className="exam-progress"><div className="progress-label"><span>PROGRESSO</span><strong>{answeredCount} <small>de {EXAM_SIZE} respondidas</small></strong></div><div className="progress-track"><span style={{ width: \\%\ }} /></div></div>
         <div className="exam-layout">
           <section className="question-card" aria-labelledby="question-title">
             <div className="question-meta"><span className="question-count">QUESTÃO <b>{String(currentIndex + 1).padStart(2, "0")}</b><i> / {EXAM_SIZE}</i></span><span className="category-tag">{currentQuestion.category}</span></div>
@@ -287,7 +287,7 @@ export default function Home() {
             <div className="sidebar-heading"><div><span>MAPA DA PROVA</span><strong>{answeredCount}<small> / {EXAM_SIZE}</small></strong></div><span className="sidebar-badge">70</span></div>
             <p className="map-legend"><span className="legend-dot legend-answered" /> Respondida <span className="legend-dot" /> Em branco</p>
             <div className="question-map" aria-label="Navegar pelas questões">
-              {examQuestions.map((question, index) => <button key={question.id} type="button" aria-label={Ir para questão } aria-current={index === currentIndex ? "step" : undefined} className={map-number  } onClick={() => moveTo(index)}>{index + 1}</button>)}
+              {examQuestions.map((question, index) => <button key={question.id} type="button" aria-label={Ir para questão \} aria-current={index === currentIndex ? "step" : undefined} className={map-number \ \} onClick={() => moveTo(index)}>{index + 1}</button>)}
             </div>
             <div className="sidebar-bottom"><p><strong>{EXAM_SIZE - answeredCount}</strong> questões aguardam sua resposta.</p><button className="finish-button" onClick={() => setScreen("result")}>Finalizar agora <span aria-hidden="true">↗</span></button></div>
           </aside>
@@ -299,8 +299,8 @@ export default function Home() {
 }
 
 function Header({ compact = false }: { compact?: boolean }) {
-  return <header className={site-header }>
-    <a className="brand-lockup" href=${process.env.NEXT_PUBLIC_BASE_PATH || ""}/ aria-label="AWS Exam Lab, início"><BrandMark /><span><strong>AWS EXAM <i>LAB</i></strong><small>SIMULADOR DE ESTUDOS</small></span></a>
+  return <header className={site-header \}>
+    <a className="brand-lockup" href={\/} aria-label="AWS Exam Lab, início"><BrandMark /><span><strong>AWS EXAM <i>LAB</i></strong><small>SIMULADOR DE ESTUDOS</small></span></a>
     <div className="header-right"><span className="header-tag"><span /> SUPABASE CLOUD</span><span className="header-separator" /><span className="header-version">V.02</span></div>
   </header>;
 }
