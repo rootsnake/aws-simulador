@@ -44,7 +44,6 @@ export default function Home() {
   const [attemptNumber, setAttemptNumber] = useState(0);
   const timerIdRef = useRef<number | null>(null);
 
-  // Busca o banco de questões da Edge Function do Supabase ao carregar a página
   useEffect(() => {
     async function loadBank() {
       try {
@@ -256,16 +255,4 @@ export default function Home() {
         </div>
         <div className="exam-progress"><div className="progress-label"><span>PROGRESSO</span><strong>{answeredCount} <small>de {EXAM_SIZE} respondidas</small></strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
         <div className="exam-layout">
-          <section className="question-card" aria-labelledby="question-title">
-            <div className="question-meta"><span className="question-count">QUESTÃO <b>{String(currentIndex + 1).padStart(2, "0")}</b><i> / {EXAM_SIZE}</i></span><span className="category-tag">{currentQuestion.category}</span></div>
-            <h2 id="question-title">{currentQuestion.question}</h2>
-            <p className="select-hint">Selecione uma alternativa</p>
-            <div className="answer-options" role="group" aria-label="Alternativas de resposta">
-              {currentQuestion.options.map((option, index) => {
-                const isSelected = selectedAnswer === index;
-                return <button key={option} type="button" className={`answer-option ${isSelected ? "option-selected" : ""}`} aria-pressed={isSelected} onClick={() => chooseAnswer(index)}>
-                  <span className="option-letter">{LETTERS[index]}</span><span className="option-text">{option}</span><span className="option-check" aria-hidden="true">{isSelected ? "✓" : ""}</span>
-                </button>;
-              })}
-            </div>
-            <div className="question-navigation"><button className="button button-secondary" onClick={() => moveTo(currentIndex - 1)} disabled={currentIndex === 0}><span aria-hidden="true">←</span> Anterior</button><span>{currentIndex + 1} <i>/</i> {EXAM_SIZE}</span>{currentIndex < EXAM_SIZE - 1 ? <button className="button button-primary" onClick={() => moveTo(currentIndex + 1)}>Próxima <span aria-hidden="true">→</span></button> : <button className="button button-primary" onClick={() => setScreen("result")}>Finalizar prova <span aria-hidden="true">✓</span></button>}</div>
+          <section className="question-
