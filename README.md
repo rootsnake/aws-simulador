@@ -1,41 +1,81 @@
-# AWS Exam Lab
+<div align="center">
 
-Um simulador demonstrativo de fundamentos AWS, feito com Next.js e TypeScript. O banco inicial contém 100 perguntas originais de estudo. Elas **não são questões oficiais da AWS** e não representam uma prova ou certificação específica.
+# ☁️ AWS Exam Lab
 
-## O que já funciona
+**Cloud se aprende. Conhecimento se prova.**
 
-- Embaralha o banco e seleciona 70 perguntas em cada tentativa.
-- Executa a prova com contagem regressiva de 90 minutos e encerramento automático.
-- Permite responder e navegar pelas questões.
-- Calcula a porcentagem, considera 75% ou mais como aprovação e mostra a revisão com gabarito e explicações.
-- Mantém banco e lógica localmente, sem Supabase ou cadastro.
+Simulado prático de fundamentos AWS, com contagem regressiva, correção automática e revisão detalhada de cada resposta.
 
-## Requisitos e execução
+[![Abrir o simulador](https://img.shields.io/badge/▶_Abrir_o_simulador-0f172a?style=for-the-badge)](https://rootsnake.github.io/aws-simulador/)
 
-- Node.js 22 ou compatível.
-- pnpm 11.25.0, fixado no campo `packageManager`.
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
+![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat&logo=github&logoColor=white)
+
+</div>
+
+---
+
+## ✨ Como funciona
+
+| | |
+|---|---|
+| 🎲 **Questões aleatórias** | 70 questões sorteadas do banco a cada tentativa, com as alternativas embaralhadas |
+| ⏱️ **Tempo de prova** | 90 minutos de contagem regressiva, com encerramento automático |
+| 🗺️ **Mapa da prova** | Navegue entre as questões e veja o que já foi respondido |
+| ✅ **Nota de corte** | Aprovação com 75% ou mais |
+| 📖 **Revisão completa** | Gabarito e explicação de cada questão ao final |
+| ☁️ **Banco na nuvem** | As questões vêm de uma Edge Function do Supabase, sem cadastro |
+
+## 🧱 Stack
+
+- **Next.js 16** com TypeScript, exportado como site estático
+- **Supabase Edge Functions** para entregar o banco de questões
+- **GitHub Actions + GitHub Pages** para build e deploy automáticos
+
+## 🗂️ Estrutura
+
+```
+src/app/page.tsx                    Telas do simulado (intro, prova, resultado, revisão)
+src/lib/exam.ts                     Busca das questões, sorteio, correção e cronômetro
+src/lib/config.ts                   URL e chave pública (anon) do Supabase
+supabase/functions/questions/       Cópia de referência da Edge Function
+.github/workflows/deploy-pages.yml  Build e deploy no GitHub Pages
+```
+
+> A Edge Function roda no Supabase, não neste repositório. A pasta `supabase/` é apenas uma cópia de referência e é ignorada no build do site. Alterações na função precisam ser publicadas no painel do Supabase.
+
+## 🚀 Rodando localmente
+
+Requisitos: Node.js 22 ou superior e pnpm.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-A aplicação ficará disponível em `http://localhost:3000`. Para gerar o site estático:
+O app abre em `http://localhost:3000`. Para gerar o site estático:
 
 ```bash
 pnpm build
 ```
 
-O Next.js exporta a aplicação para `out/`.
+## 🌐 Deploy
 
-## Editar o banco de questões
+O workflow em `.github/workflows/deploy-pages.yml` faz o build e publica a pasta `out/` a cada push na `main`.
+Em **Settings → Pages → Source**, deixe selecionado **GitHub Actions**.
 
-O arquivo `src/data/aws-questions.json` contém cada questão com `id`, `category`, `question`, `options`, `answerIndex` e `explanation`. `answerIndex` é o índice, começando em zero, da alternativa correta. Mantenha pelo menos 70 questões válidas para iniciar uma tentativa.
+## 🗄️ Banco de questões
 
-## GitHub Pages
+As questões ficam na tabela `questoes` do Supabase e são entregues pela Edge Function `questions`. Cada questão tem `id`, `category`, `question`, `options`, `answerIndex` (índice da alternativa correta, começando em zero) e `explanation`. São necessárias pelo menos 70 questões válidas para iniciar uma tentativa.
 
-O projeto está preparado para exportação estática. O workflow em `.github/workflows/deploy-pages.yml` constrói e publica `out/` usando GitHub Actions. No repositório, selecione **Settings → Pages → Build and deployment → GitHub Actions**. Para um site de projeto, o workflow configura automaticamente o caminho `/nome-do-repositorio`; para um repositório `usuario.github.io`, usa a raiz.
+## ⚠️ Aviso
 
-## Limites desta primeira versão
+As questões são **originais e demonstrativas**. Elas **não são questões oficiais da AWS** e não representam uma certificação específica. As respostas são enviadas ao navegador, então o projeto serve para estudo e não para uma prova supervisionada. Ele não garante aprovação em nenhuma certificação.
 
-As questões e o gabarito são enviados ao navegador, portanto este app serve para estudo, não para aplicar uma prova segura ou supervisionada. O progresso não é sincronizado entre dispositivos e pode ser perdido ao atualizar a página. Para guardar histórico, autenticar usuários ou ocultar respostas, será necessário adicionar uma camada de servidor e, se desejado, banco de dados.
+---
+
+<div align="center">
+Feito para estudar cloud sem enrolação. ☁️
+</div>
