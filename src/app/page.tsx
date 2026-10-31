@@ -1,4 +1,5 @@
-﻿"use client";
+﻿@'
+"use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
@@ -8,7 +9,7 @@ import {
   fetchQuestionsFromSupabase,
   type Answers,
   type Question,
-} from "../lib/exam";
+} from "@/lib/exam";
 
 const EXAM_SIZE = 70;
 const EXAM_SECONDS = 90 * 60;
@@ -27,10 +28,52 @@ function BrandMark() {
   );
 }
 
+function Header({ compact = false }: { compact?: boolean }) {
+  return (
+    <header className={`site-header ${compact ? "site-header-compact" : ""}`}>
+      <div className="brand">
+        <BrandMark />
+        <span className="brand-name">AWS Exam Lab</span>
+      </div>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="site-footer">
+      <p>Simulado demonstrativo para estudo. Não é oficial e não está afiliado à AWS.</p>
+    </footer>
+  );
+}
+
+function StatRow({
+  index,
+  label,
+  value,
+  detail,
+}: {
+  index: string;
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="stat-row">
+      <span className="stat-index">{index}</span>
+      <div className="stat-label">
+        <strong>{label}</strong>
+        <small>{detail}</small>
+      </div>
+      <span className="stat-value">{value}</span>
+    </div>
+  );
+}
+
 function formatDuration(seconds: number) {
   const elapsed = EXAM_SECONDS - seconds;
   const minutes = Math.floor(elapsed / 60);
-  return \\ min\;
+  return `${minutes} min`;
 }
 
 export default function Home() {
@@ -160,7 +203,7 @@ export default function Home() {
   }
 
   if (screen === "result" || (screen === "exam" && remainingSeconds === 0)) {
-    const scoreStyle = { "--score": \\%\ } as CSSProperties;
+    const scoreStyle = { "--score": `${score.percentage}%` } as CSSProperties;
     return (
       <main className="site-shell results-shell">
         <Header />
@@ -173,7 +216,7 @@ export default function Home() {
           <div className="results-grid">
             <section className="score-card">
               <div className="score-ring" style={scoreStyle}><div><strong>{score.percentage}<small>%</small></strong><span>pontuação</span></div></div>
-              <p className={status-chip }><span />{score.passed ? "APROVADO · CORTE 75%" : "ABAIXO DO CORTE · 75%"}</p>
+              <p className={`status-chip ${score.passed ? "status-pass" : "status-review"}`}><span />{score.passed ? "APROVADO · CORTE 75%" : "ABAIXO DO CORTE · 75%"}</p>
               <h2>{score.passed ? "Conhecimento validado." : "Você precisa reforçar seus conhecimentos."}</h2>
               <p className="score-support">{score.passed ? "Continue praticando para consolidar o aprendizado." : "Revise as explicações das questões e faça outra tentativa quando estiver pronto."}</p>
             </section>
@@ -213,14 +256,14 @@ export default function Home() {
               const selected = answers[question.id];
               const isCorrect = selected === question.answerIndex;
               return (
-                <article className={eview-question } key={question.id}>
+                <article className={`review-question ${isCorrect ? "review-correct" : "review-incorrect"}`} key={question.id}>
                   <div className="review-question-top"><span>QUESTÃO {String(index + 1).padStart(2, "0")} <i>·</i> {question.category}</span><strong>{isCorrect ? "CORRETA" : selected === undefined ? "EM BRANCO" : "INCORRETA"}</strong></div>
                   <h2>{question.question}</h2>
                   <div className="review-options">
                     {question.options.map((option, optionIndex) => {
                       const isAnswer = optionIndex === question.answerIndex;
                       const isSelected = optionIndex === selected;
-                      return <div className={eview-option  } key={option}>
+                      return <div className={`review-option ${isAnswer ? "is-answer" : ""} ${isSelected && !isAnswer ? "is-wrong-choice" : ""}`} key={option}>
                         <span className="option-letter">{LETTERS[optionIndex]}</span><span>{option}</span>
                         {isSelected && isAnswer && <b>SUA RESPOSTA · GABARITO</b>}
                         {isAnswer && !isSelected && <b>GABARITO</b>}
@@ -251,9 +294,9 @@ export default function Home() {
       <section className="exam-wrap">
         <div className="exam-topline">
           <div><p className="eyebrow"><span className="pulse-dot" /> SIMULADO EM ANDAMENTO</p><h1>Fundamentos de cloud</h1></div>
-          <div className={	imer-card } aria-live="polite"><span className="timer-icon" aria-hidden="true">◷</span><div><span>TEMPO RESTANTE</span><strong>{formatTime(remainingSeconds)}</strong></div></div>
+          <div className={`timer-card ${lowTime ? "timer-low" : ""}`} aria-live="polite"><span className="timer-icon" aria-hidden="true">◷</span><div><span>TEMPO RESTANTE</span><strong>{formatTime(remainingSeconds)}</strong></div></div>
         </div>
-        <div className="exam-progress"><div className="progress-label"><span>PROGRESSO</span><strong>{answeredCount} <small>de {EXAM_SIZE} respondidas</small></strong></div><div className="progress-track"><span style={{ width: \\%\ }} /></div></div>
+        <div className="exam-progress"><div className="progress-label"><span>PROGRESSO</span><strong>{answeredCount} <small>de {EXAM_SIZE} respondidas</small></strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
         <div className="exam-layout">
           <section className="question-card" aria-labelledby="question-title">
             <div className="question-meta"><span className="question-count">QUESTÃO <b>{String(currentIndex + 1).padStart(2, "0")}</b><i> / {EXAM_SIZE}</i></span><span className="category-tag">{currentQuestion.category}</span></div>
@@ -262,7 +305,7 @@ export default function Home() {
             <div className="answer-options" role="group" aria-label="Alternativas de resposta">
               {currentQuestion.options.map((option, index) => {
                 const isSelected = selectedAnswer === index;
-                return <button key={option} type="button" className={nswer-option } aria-pressed={isSelected} onClick={() => chooseAnswer(index)}>
+                return <button key={option} type="button" className={`answer-option ${isSelected ? "option-selected" : ""}`} aria-pressed={isSelected} onClick={() => chooseAnswer(index)}>
                   <span className="option-letter">{LETTERS[index]}</span><span className="option-text">{option}</span><span className="option-check" aria-hidden="true">{isSelected ? "✓" : ""}</span>
                 </button>;
               })}
@@ -284,31 +327,32 @@ export default function Home() {
             </div>
           </section>
           <aside className="question-sidebar">
-            <div className="sidebar-heading"><div><span>MAPA DA PROVA</span><strong>{answeredCount}<small> / {EXAM_SIZE}</small></strong></div><span className="sidebar-badge">70</span></div>
-            <p className="map-legend"><span className="legend-dot legend-answered" /> Respondida <span className="legend-dot" /> Em branco</p>
-            <div className="question-map" aria-label="Navegar pelas questões">
-              {examQuestions.map((question, index) => <button key={question.id} type="button" aria-label={Ir para questão \} aria-current={index === currentIndex ? "step" : undefined} className={map-number \ \} onClick={() => moveTo(index)}>{index + 1}</button>)}
+            <div className="sidebar-heading"><div><span>MAPA DA PROVA</span><strong>{answeredCount} / {EXAM_SIZE}</strong></div></div>
+            <div className="question-map">
+              {examQuestions.map((question, index) => {
+                const isCurrent = index === currentIndex;
+                const isAnswered = answers[question.id] !== undefined;
+                return (
+                  <button
+                    key={question.id}
+                    type="button"
+                    className={`map-item ${isCurrent ? "map-current" : ""} ${isAnswered ? "map-answered" : ""}`}
+                    aria-label={`Ir para a questão ${index + 1}`}
+                    aria-current={isCurrent ? "true" : undefined}
+                    onClick={() => moveTo(index)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
             </div>
-            <div className="sidebar-bottom"><p><strong>{EXAM_SIZE - answeredCount}</strong> questões aguardam sua resposta.</p><button className="finish-button" onClick={() => setScreen("result")}>Finalizar agora <span aria-hidden="true">↗</span></button></div>
+            <button className="button button-primary sidebar-finish" onClick={() => setScreen("result")}>
+              Finalizar prova <span aria-hidden="true">✓</span>
+            </button>
           </aside>
         </div>
-        <p className="exam-disclaimer">Simulado demonstrativo. Questões originais, não oficiais da AWS.</p>
       </section>
+      <Footer />
     </main>
   );
-}
-
-function Header({ compact = false }: { compact?: boolean }) {
-  return <header className={site-header \}>
-    <a className="brand-lockup" href={\/} aria-label="AWS Exam Lab, início"><BrandMark /><span><strong>AWS EXAM <i>LAB</i></strong><small>SIMULADOR DE ESTUDOS</small></span></a>
-    <div className="header-right"><span className="header-tag"><span /> SUPABASE CLOUD</span><span className="header-separator" /><span className="header-version">V.02</span></div>
-  </header>;
-}
-
-function StatRow({ index, label, value, detail }: { index: string; label: string; value: string; detail: string }) {
-  return <div className="stat-row"><span className="stat-index">{index}</span><div className="stat-copy"><span>{label}</span><small>{detail}</small></div><strong>{value}</strong></div>;
-}
-
-function Footer() {
-  return <footer className="site-footer"><span>© AWS EXAM LAB <i>·</i> PROJETO SUPABASE</span><span>APRENDA COM INTENÇÃO<span className="footer-spark"> ✳</span></span></footer>;
 }
