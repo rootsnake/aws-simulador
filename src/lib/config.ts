@@ -1,4 +1,4 @@
 export const CONFIG = {
-  SUPABASE_URL: "https://aacjleezqesxptfzultt.supabase.co"
+  SUPABASE_URL: "https://aacjleezqesxptfzultt.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhY2psZWV6cWVzeHB0Znp1bHR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMDc3MDQsImV4cCI6MjEwNTc4MzcwNH0.p7dQliih_fUpqgXW6nGJGoeppQ9ZjZaivG1UhXvqnHM"
 };
