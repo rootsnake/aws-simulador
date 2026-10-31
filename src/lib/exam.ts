@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { CONFIG } from './config';
+import { createClient } from '@supabase/supabase-js';
 
 export type Question = {
   id: string;
@@ -12,11 +12,11 @@ export type Question = {
 
 export type Answers = Record<string, number>;
 
-// Inicializa o cliente do Supabase com as credenciais públicas do config.ts
+// Inicializa o cliente do Supabase com as credenciais pÃºblicas do config.ts
 const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 /**
- * Busca todas as questões hospedadas na Edge Function do Supabase
+ * Busca todas as questÃµes hospedadas na Edge Function do Supabase
  */
 export async function fetchQuestionsFromSupabase(): Promise<Question[]> {
   try {
@@ -31,9 +31,9 @@ export async function fetchQuestionsFromSupabase(): Promise<Question[]> {
       return data.data as Question[];
     }
 
-    throw new Error('A resposta da Edge Function não veio no formato esperado.');
+    throw new Error('A resposta da Edge Function nÃ£o veio no formato esperado.');
   } catch (err) {
-    console.error('Erro ao carregar questões do Supabase:', err);
+    console.error('Erro ao carregar questÃµes do Supabase:', err);
     return [];
   }
 }
@@ -49,7 +49,7 @@ export function shuffleQuestions<T>(items: T[]): T[] {
 
 export function createExam(bank: Question[], count: number): Question[] {
   if (bank.length < count) {
-    throw new Error(`O banco precisa ter pelo menos ${count} questões.`);
+    throw new Error(`O banco precisa ter pelo menos ${count} questÃµes.`);
   }
   return shuffleQuestions(bank).slice(0, count).map((question) => {
     if (
@@ -57,7 +57,7 @@ export function createExam(bank: Question[], count: number): Question[] {
       question.answerIndex < 0 ||
       question.answerIndex >= question.options.length
     ) {
-      throw new Error(`A questão ${question.id} tem um índice de gabarito inválido.`);
+      throw new Error(`A questÃ£o ${question.id} tem um Ã­ndice de gabarito invÃ¡lido.`);
     }
 
     const shuffledOptions = shuffleQuestions(
